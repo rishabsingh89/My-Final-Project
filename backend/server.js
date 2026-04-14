@@ -12,9 +12,10 @@ const app = express();
 
 // ─── Middleware ────────────────────────────────────────────────────────────────
 app.use(cors({
-  origin: process.env.NODE_ENV === 'production' ? false : '*',
+  origin: true, // Allow the request's origin
   methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'],
   allowedHeaders: ['Content-Type', 'Authorization'],
+  credentials: true
 }));
 
 app.use(express.json({ limit: '10mb' }));
@@ -37,13 +38,7 @@ app.get('/api/health', (req, res) => {
   });
 });
 
-// ─── Serve React Frontend (Production) ────────────────────────────────────────
-if (process.env.NODE_ENV === 'production') {
-  app.use(express.static(path.join(__dirname, '../client/build')));
-  app.get('*', (req, res) => {
-    res.sendFile(path.resolve(__dirname, '../client/build', 'index.html'));
-  });
-}
+// Frontend is served by vercel.json in production
 
 // ─── 404 Handler ──────────────────────────────────────────────────────────────
 app.use((req, res) => {

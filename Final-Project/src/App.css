@@ -1,0 +1,5 @@
+.pg{min-height:100vh;padding-top:60px;position:relative;z-index:1}
+.sec{padding:5.5rem 1.5rem;max-width:1160px;margin:0 auto}
+.stag{font-family:var(--fm);font-size:.7rem;color:var(--lime);letter-spacing:.12em;text-transform:uppercase;display:block;margin-bottom:.75rem}
+.sh{font-size:clamp(1.8rem,4vw,3rem);font-weight:800;letter-spacing:-.035em;line-height:1.1;margin-bottom:1rem}
+.sp{color:var(--fog);font-size:.98rem;max-width:520px;line-height:1.75;margin-bottom:2.75rem}

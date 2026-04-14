@@ -1,0 +1,16 @@
+.f{border-top:1px solid var(--rim);background:var(--ink2);padding:2rem 2.5rem 1.75rem;position:relative;overflow:hidden}
+.f::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(184,255,87,.3),transparent)}
+
+.top{display:flex;align-items:center;gap:1.5rem;margin-bottom:1.25rem;flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:.5rem}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--lime);display:inline-block;animation:pd 2s infinite;flex-shrink:0}
+@keyframes pd{0%,100%{box-shadow:0 0 0 0 rgba(184,255,87,.4)}50%{box-shadow:0 0 0 8px rgba(184,255,87,0)}}
+.name{font-weight:800;font-size:1rem;color:var(--snow)}
+.tagline{font-size:.78rem;color:var(--fog)}
+
+.divider{height:1px;background:var(--rim);margin-bottom:1.25rem}
+
+.bottom{display:flex;align-items:center;justify-content:space-between;font-size:.78rem;color:var(--fog);flex-wrap:wrap;gap:.5rem}
+.r{font-family:var(--fm);color:var(--lime);font-size:.7rem}
+
+@media(max-width:600px){.bottom{flex-direction:column;text-align:center}}

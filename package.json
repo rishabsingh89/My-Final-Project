@@ -1,0 +1,8 @@
+{
+  "name": "my-final-project-deploy",
+  "private": true,
+  "scripts": {
+    "install:frontend": "npm install --prefix Final-Project",
+    "build": "npm --prefix Final-Project run build"
+  }
+}

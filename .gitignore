@@ -1,0 +1,6 @@
+backend/node_modules/
+Final-Project/node_modules/
+Final-Project/dist/
+backend/.env
+backend/.git-backup/
+Final-Project/.git-backup/

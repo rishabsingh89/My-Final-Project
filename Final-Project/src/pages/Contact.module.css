@@ -1,0 +1,57 @@
+/* Contact page with city/office background */
+.pg{
+  background:
+    radial-gradient(ellipse 80% 60% at 50% -20%,rgba(139,92,246,.16),transparent),
+    linear-gradient(180deg,rgba(8,8,16,.75) 0%,rgba(8,8,16,.92) 100%),
+    url('https://images.unsplash.com/photo-1497366216548-37526070297c?w=1800&auto=format&fit=crop&q=60') center/cover fixed no-repeat;
+  position:relative;
+}
+
+/* Layout */
+.layout{display:grid;grid-template-columns:1fr 1.5fr;gap:3rem;max-width:1000px;margin:0 auto;padding:3rem 1.5rem 5rem}
+
+/* Left column */
+.h2{font-size:2.1rem;font-weight:800;letter-spacing:-.04em;margin-bottom:1rem;line-height:1.1;animation:slideIn .6s ease both}
+@keyframes slideIn{from{opacity:0;transform:translateX(-30px)}to{opacity:1;transform:translateX(0)}}
+.intro{color:var(--fog);font-size:.88rem;line-height:1.75;margin-bottom:2rem;animation:slideIn .6s .1s ease both}
+
+/* Contact details */
+.detail{display:flex;align-items:center;gap:.75rem;margin-bottom:.875rem;font-size:.875rem;animation:slideIn .6s ease both;transition:transform .2s}
+.detail:hover{transform:translateX(4px)}
+.detail:nth-child(3){animation-delay:.15s}
+.detail:nth-child(4){animation-delay:.2s}
+.detail:nth-child(5){animation-delay:.25s}
+.dIcon{width:36px;height:36px;border-radius:10px;background:var(--glass2);border:1px solid var(--rim);display:flex;align-items:center;justify-content:center;font-size:.95rem;flex-shrink:0;transition:all .3s}
+.detail:hover .dIcon{background:rgba(139,92,246,.12);border-color:rgba(139,92,246,.4);transform:scale(1.1)}
+
+/* Status box */
+.statusBox{margin-top:2rem;background:rgba(16,16,28,.85);border:1px solid var(--rim);border-radius:14px;padding:1.25rem;backdrop-filter:blur(12px);animation:slideIn .6s .3s ease both}
+.stTitle{font-family:var(--fm);font-size:.68rem;color:var(--fog);margin-bottom:.875rem;letter-spacing:.08em;text-transform:uppercase}
+.stRow{display:flex;justify-content:space-between;align-items:center;font-size:.78rem;padding:.33rem 0;border-bottom:1px solid var(--rim);transition:background .2s}
+.stRow:last-child{border-bottom:none}
+.stRow:hover{background:rgba(255,255,255,.02);padding-left:.4rem;border-radius:6px}
+.stLabel{color:var(--fog)}
+.stVal{font-family:var(--fm);font-size:.7rem;display:flex;align-items:center;gap:.4rem}
+
+/* Form box */
+.formBox{background:rgba(16,16,28,.85);border:1px solid var(--rim);border-radius:20px;padding:2rem;backdrop-filter:blur(16px);animation:formIn .7s .15s ease both;position:relative;overflow:hidden}
+.formBox::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(139,92,246,.5),transparent)}
+@keyframes formIn{from{opacity:0;transform:translateY(30px)}to{opacity:1;transform:translateY(0)}}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+.fg{margin-bottom:1.1rem}
+.fg label{display:block;font-size:.68rem;color:var(--fog);margin-bottom:.42rem;font-family:var(--fm);letter-spacing:.07em;text-transform:uppercase}
+.fg input,.fg textarea,.fg select{width:100%;padding:.68rem .875rem;border-radius:10px;background:rgba(8,8,16,.8);border:1px solid var(--rim);color:var(--snow);font-family:var(--fd);font-size:.875rem;outline:none;transition:all .25s;resize:none}
+.fg input:focus,.fg textarea:focus,.fg select:focus{border-color:var(--violet);box-shadow:0 0 0 3px rgba(139,92,246,.12);background:rgba(16,16,28,.9)}
+.fg textarea{min-height:94px}
+.fg select option{background:var(--ink2)}
+
+/* Submit button */
+.submit{width:100%;padding:.85rem;border-radius:100px;background:var(--lime);color:var(--ink);border:none;font-family:var(--fd);font-weight:700;font-size:.9rem;cursor:pointer;transition:all .3s;box-shadow:0 0 40px rgba(184,255,87,.13);position:relative;overflow:hidden}
+.submit::after{content:'';position:absolute;inset:0;background:linear-gradient(90deg,transparent,rgba(255,255,255,.3),transparent);transform:translateX(-100%);transition:transform .5s}
+.submit:hover::after{transform:translateX(100%)}
+.submit:hover{transform:translateY(-2px);box-shadow:0 14px 50px rgba(184,255,87,.38)}
+.submit.sent{background:linear-gradient(135deg,#06d6a0,#0dd3bb);animation:successPulse .5s ease}
+@keyframes successPulse{0%{transform:scale(.98)}50%{transform:scale(1.02)}100%{transform:scale(1)}}
+
+@media(max-width:900px){.layout{grid-template-columns:1fr}}
+@media(max-width:600px){.row2{grid-template-columns:1fr}}

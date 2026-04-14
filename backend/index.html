@@ -1,0 +1,539 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Predictive Inventory System</title>
+  <style>
+    :root {
+      --bg: #0f1117;
+      --surface: #1a1d27;
+      --surface2: #22263a;
+      --border: #2e334d;
+      --accent: #6366f1;
+      --accent2: #818cf8;
+      --green: #22c55e;
+      --red: #ef4444;
+      --yellow: #f59e0b;
+      --text: #e2e8f0;
+      --muted: #64748b;
+      --radius: 12px;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', system-ui, sans-serif; min-height: 100vh; }
+
+    /* ── Header ── */
+    header {
+      background: linear-gradient(135deg, var(--surface) 0%, #1e2235 100%);
+      border-bottom: 1px solid var(--border);
+      padding: 20px 40px;
+      display: flex; align-items: center; gap: 16px;
+    }
+    .logo { width: 44px; height: 44px; background: var(--accent); border-radius: 10px;
+      display: flex; align-items: center; justify-content: center; font-size: 22px; }
+    header h1 { font-size: 22px; font-weight: 700; }
+    header p { color: var(--muted); font-size: 13px; margin-top: 2px; }
+    .status-dot { margin-left: auto; display: flex; align-items: center; gap: 8px;
+      background: #162a1f; padding: 8px 16px; border-radius: 20px; font-size: 13px; color: var(--green); }
+    .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--green); animation: pulse 2s infinite; }
+    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.4} }
+
+    /* ── Layout ── */
+    .container { max-width: 1200px; margin: 0 auto; padding: 32px 24px; }
+
+    /* ── Tabs ── */
+    .tabs { display: flex; gap: 4px; background: var(--surface); border-radius: 10px;
+      padding: 4px; margin-bottom: 28px; border: 1px solid var(--border); width: fit-content; }
+    .tab { padding: 9px 20px; border-radius: 8px; cursor: pointer; font-size: 14px; font-weight: 500;
+      border: none; background: transparent; color: var(--muted); transition: all .2s; }
+    .tab.active { background: var(--accent); color: #fff; }
+    .tab:hover:not(.active) { color: var(--text); background: var(--surface2); }
+
+    /* ── Cards ── */
+    .grid-4 { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; margin-bottom: 28px; }
+    .card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 22px; }
+    .card-label { font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: .8px; margin-bottom: 10px; }
+    .card-value { font-size: 32px; font-weight: 700; }
+    .card-sub { font-size: 13px; color: var(--muted); margin-top: 6px; }
+    .card.green .card-value { color: var(--green); }
+    .card.yellow .card-value { color: var(--yellow); }
+    .card.red .card-value { color: var(--red); }
+    .card.purple .card-value { color: var(--accent2); }
+
+    /* ── Section ── */
+    .section { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; margin-bottom: 24px; }
+    .section-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
+    .section-title { font-size: 16px; font-weight: 600; }
+
+    /* ── Auth Panel ── */
+    .auth-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+    .form-group { margin-bottom: 16px; }
+    label { display: block; font-size: 13px; color: var(--muted); margin-bottom: 6px; }
+    input, select { width: 100%; padding: 10px 14px; background: var(--bg); border: 1px solid var(--border);
+      border-radius: 8px; color: var(--text); font-size: 14px; outline: none; transition: border .2s; }
+    input:focus, select:focus { border-color: var(--accent); }
+    .btn { padding: 10px 20px; border-radius: 8px; border: none; cursor: pointer; font-size: 14px;
+      font-weight: 600; transition: all .2s; }
+    .btn-primary { background: var(--accent); color: #fff; }
+    .btn-primary:hover { background: var(--accent2); }
+    .btn-outline { background: transparent; border: 1px solid var(--border); color: var(--text); }
+    .btn-outline:hover { border-color: var(--accent); color: var(--accent2); }
+    .btn-danger { background: var(--red); color: #fff; }
+    .btn-success { background: var(--green); color: #fff; }
+
+    /* ── Token display ── */
+    .token-box { background: var(--bg); border: 1px solid var(--border); border-radius: 8px;
+      padding: 14px; font-family: monospace; font-size: 12px; color: var(--accent2);
+      word-break: break-all; margin-top: 12px; max-height: 80px; overflow-y: auto; }
+
+    /* ── API Tester ── */
+    .endpoint-list { display: flex; flex-direction: column; gap: 10px; }
+    .endpoint { background: var(--surface2); border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+    .endpoint-header { display: flex; align-items: center; gap: 12px; padding: 14px 18px; cursor: pointer; }
+    .method { padding: 4px 10px; border-radius: 6px; font-size: 11px; font-weight: 700; font-family: monospace; min-width: 54px; text-align: center; }
+    .GET { background: #1a3a2a; color: var(--green); }
+    .POST { background: #1e2c4a; color: #60a5fa; }
+    .PUT { background: #2d2a1a; color: var(--yellow); }
+    .PATCH { background: #2d1e36; color: #c084fc; }
+    .DELETE { background: #2d1a1a; color: var(--red); }
+    .endpoint-path { font-family: monospace; font-size: 13px; flex: 1; }
+    .endpoint-desc { font-size: 12px; color: var(--muted); }
+    .auth-badge { font-size: 10px; padding: 2px 8px; border-radius: 4px; background: #1e2c4a; color: #93c5fd; }
+
+    /* ── Table ── */
+    table { width: 100%; border-collapse: collapse; font-size: 14px; }
+    th { text-align: left; padding: 10px 14px; font-size: 11px; text-transform: uppercase;
+      letter-spacing: .6px; color: var(--muted); border-bottom: 1px solid var(--border); }
+    td { padding: 12px 14px; border-bottom: 1px solid var(--border); }
+    tr:last-child td { border-bottom: none; }
+    .badge { padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; }
+    .badge-green { background: #162a1f; color: var(--green); }
+    .badge-yellow { background: #2d2410; color: var(--yellow); }
+    .badge-red { background: #2d1515; color: var(--red); }
+    .badge-purple { background: #1e1a2d; color: var(--accent2); }
+
+    /* ── Response box ── */
+    .response-area { background: var(--bg); border: 1px solid var(--border); border-radius: 8px;
+      padding: 16px; font-family: monospace; font-size: 12px; white-space: pre-wrap; max-height: 300px;
+      overflow-y: auto; color: #a5f3fc; margin-top: 14px; display: none; }
+    .response-area.visible { display: block; }
+
+    /* ── CSV template ── */
+    .csv-example { background: var(--bg); border: 1px solid var(--border); border-radius: 8px;
+      padding: 14px; font-family: monospace; font-size: 12px; color: #86efac; margin-top: 10px; overflow-x: auto; }
+
+    .pane { display: none; }
+    .pane.active { display: block; }
+
+    .flex { display: flex; gap: 10px; align-items: center; }
+    .ml-auto { margin-left: auto; }
+    .text-muted { color: var(--muted); font-size: 13px; }
+    .mt-2 { margin-top: 8px; }
+    .mb-2 { margin-bottom: 8px; }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="logo">📦</div>
+  <div>
+    <h1>Predictive Inventory System</h1>
+    <p>MERN Stack · MongoDB Atlas · Express · React · Node.js</p>
+  </div>
+  <div class="status-dot">
+    <div class="dot"></div>
+    <span id="serverStatus">Checking server…</span>
+  </div>
+</header>
+
+<div class="container">
+
+  <!-- Tabs -->
+  <div class="tabs">
+    <button class="tab active" onclick="showPane('overview')">📊 Overview</button>
+    <button class="tab" onclick="showPane('auth')">🔐 Auth</button>
+    <button class="tab" onclick="showPane('endpoints')">🔌 API Endpoints</button>
+    <button class="tab" onclick="showPane('csv')">📁 CSV Import</button>
+    <button class="tab" onclick="showPane('setup')">⚙️ Setup Guide</button>
+  </div>
+
+  <!-- ── OVERVIEW ── -->
+  <div id="pane-overview" class="pane active">
+    <div class="grid-4">
+      <div class="card green">
+        <div class="card-label">Total Products</div>
+        <div class="card-value" id="stat-total">–</div>
+        <div class="card-sub">Active inventory items</div>
+      </div>
+      <div class="card yellow">
+        <div class="card-label">Low Stock</div>
+        <div class="card-value" id="stat-low">–</div>
+        <div class="card-sub">Below reorder point</div>
+      </div>
+      <div class="card red">
+        <div class="card-label">Out of Stock</div>
+        <div class="card-value" id="stat-out">–</div>
+        <div class="card-sub">Needs immediate restock</div>
+      </div>
+      <div class="card purple">
+        <div class="card-label">Stock Value</div>
+        <div class="card-value" id="stat-value">–</div>
+        <div class="card-sub">Total cost of inventory</div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-header">
+        <div class="section-title">🔮 Prediction Alerts</div>
+        <button class="btn btn-outline" onclick="loadPredictions()">Refresh</button>
+      </div>
+      <div id="predictionsTable">
+        <p class="text-muted">Login and click Refresh to load predictions.</p>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-header">
+        <div class="section-title">📋 Recent Activity</div>
+      </div>
+      <div id="activityTable">
+        <p class="text-muted">No recent activity loaded. Login to see data.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── AUTH ── -->
+  <div id="pane-auth" class="pane">
+    <div class="auth-grid">
+
+      <div class="section">
+        <div class="section-title mb-2">📝 Register</div>
+        <div class="form-group"><label>Full Name</label><input id="reg-name" placeholder="John Doe" /></div>
+        <div class="form-group"><label>Email</label><input id="reg-email" type="email" placeholder="john@company.com" /></div>
+        <div class="form-group"><label>Password</label><input id="reg-pass" type="password" placeholder="Min 6 characters" /></div>
+        <div class="form-group">
+          <label>Role</label>
+          <select id="reg-role">
+            <option value="manager">Manager</option>
+            <option value="admin">Admin</option>
+            <option value="viewer">Viewer</option>
+          </select>
+        </div>
+        <button class="btn btn-primary" onclick="register()">Create Account</button>
+        <div class="response-area" id="reg-response"></div>
+      </div>
+
+      <div class="section">
+        <div class="section-title mb-2">🔑 Login</div>
+        <div class="form-group"><label>Email</label><input id="login-email" type="email" placeholder="john@company.com" /></div>
+        <div class="form-group"><label>Password</label><input id="login-pass" type="password" placeholder="Your password" /></div>
+        <button class="btn btn-success" onclick="login()">Login</button>
+
+        <div id="auth-status" class="mt-2" style="display:none">
+          <p style="color:var(--green);font-size:13px;margin-bottom:6px">✅ Logged in as <b id="auth-name"></b></p>
+          <div class="card-label" style="margin-top:10px">JWT Token (copy for API calls):</div>
+          <div class="token-box" id="token-display"></div>
+          <button class="btn btn-danger mt-2" onclick="logout()" style="margin-top:10px">Logout</button>
+        </div>
+        <div class="response-area" id="login-response"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── ENDPOINTS ── -->
+  <div id="pane-endpoints" class="pane">
+    <div class="section">
+      <div class="section-title mb-2">🔐 Auth Endpoints</div>
+      <div class="endpoint-list" id="auth-endpoints"></div>
+    </div>
+    <div class="section">
+      <div class="section-title mb-2">📦 Inventory Endpoints</div>
+      <div class="endpoint-list" id="inv-endpoints"></div>
+    </div>
+  </div>
+
+  <!-- ── CSV ── -->
+  <div id="pane-csv" class="pane">
+    <div class="section">
+      <div class="section-title mb-2">📁 Bulk Import via CSV</div>
+      <p class="text-muted mb-2">Upload a CSV file to import multiple products at once. Existing SKUs will have their quantity updated.</p>
+      <div class="card-label mt-2">Required CSV columns:</div>
+      <div class="csv-example">name,sku,category,quantity,unit,costPrice,sellingPrice,reorderPoint,reorderQuantity,description
+Laptop Dell XPS,DELL-XPS-001,Electronics,50,units,800,1200,10,20,High performance laptop
+USB-C Cable,USB-C-2M,Accessories,200,units,5,15,30,100,2 meter USB-C cable
+Wireless Mouse,MOUSE-WL-01,Peripherals,75,units,12,25,20,50,Ergonomic wireless mouse</div>
+      <button class="btn btn-outline mt-2" onclick="downloadTemplate()" style="margin-top:12px">⬇ Download Template</button>
+    </div>
+    <div class="section">
+      <div class="section-title mb-2">Upload CSV</div>
+      <input type="file" id="csv-file" accept=".csv" style="color:var(--text);margin-bottom:12px" />
+      <br/>
+      <button class="btn btn-primary" onclick="uploadCSV()">Upload & Import</button>
+      <div class="response-area" id="csv-response"></div>
+    </div>
+  </div>
+
+  <!-- ── SETUP ── -->
+  <div id="pane-setup" class="pane">
+    <div class="section">
+      <div class="section-title mb-2">⚙️ Backend Setup Guide</div>
+
+      <table>
+        <thead><tr><th>Step</th><th>Command / Action</th><th>Status</th></tr></thead>
+        <tbody>
+          <tr><td>1. Extract backend folder</td><td><code>unzip backend.zip</code></td><td><span class="badge badge-purple">Manual</span></td></tr>
+          <tr><td>2. Install dependencies</td><td><code>cd backend && npm install</code></td><td><span class="badge badge-purple">Manual</span></td></tr>
+          <tr><td>3. Start dev server</td><td><code>npm run dev</code></td><td><span class="badge badge-purple">Manual</span></td></tr>
+          <tr><td>4. MongoDB Atlas</td><td>Already configured in .env</td><td><span class="badge badge-green">Ready ✓</span></td></tr>
+          <tr><td>5. API Base URL</td><td><code>http://localhost:5000/api</code></td><td><span class="badge badge-green">Ready ✓</span></td></tr>
+          <tr><td>6. Connect React frontend</td><td>Set <code>REACT_APP_API_URL=http://localhost:5000/api</code></td><td><span class="badge badge-yellow">Config needed</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="section">
+      <div class="section-title mb-2">📁 File Structure</div>
+      <div class="csv-example">backend/
+├── server.js              ← Entry point (run this)
+├── package.json           ← Dependencies
+├── .env                   ← MongoDB Atlas URI + JWT secret
+├── config/
+│   └── db.js              ← MongoDB connection
+├── models/
+│   ├── User.js            ← User schema (auth, roles)
+│   ├── Inventory.js       ← Product schema (stock, pricing)
+│   └── StockHistory.js    ← Stock movement logs
+├── routes/
+│   ├── auth.js            ← /api/auth/*
+│   └── inventory.js       ← /api/inventory/*
+├── controllers/
+│   ├── authController.js  ← Register, login, profile
+│   └── inventoryController.js ← CRUD + predictions + CSV
+├── middleware/
+│   ├── authMiddleware.js  ← JWT verify + role guard
+│   └── upload.js          ← Multer (images + CSV)
+└── utils/
+    └── prediction.js      ← 🔮 Prediction engine</div>
+    </div>
+
+    <div class="section">
+      <div class="section-title mb-2">🔗 Connect React Frontend</div>
+      <p class="text-muted">In your React project, create a <code>.env</code> file:</p>
+      <div class="csv-example">REACT_APP_API_URL=http://localhost:5000/api</div>
+      <p class="text-muted mt-2">Then call APIs like:</p>
+      <div class="csv-example" style="color:#fbbf24">// Example: Login from React
+const res = await fetch(`${process.env.REACT_APP_API_URL}/auth/login`, {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({ email, password })
+});
+const data = await res.json();
+localStorage.setItem('token', data.token);
+
+// Example: Get inventory (authenticated)
+const inv = await fetch(`${process.env.REACT_APP_API_URL}/inventory`, {
+  headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
+});</div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  const BASE = 'http://localhost:5000/api';
+  let token = localStorage.getItem('inv_token') || '';
+  let userData = JSON.parse(localStorage.getItem('inv_user') || 'null');
+
+  // ── Utilities ──────────────────────────────
+  const showPane = (name) => {
+    document.querySelectorAll('.pane').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    document.getElementById(`pane-${name}`).classList.add('active');
+    event.target.classList.add('active');
+  };
+
+  const showResponse = (id, data, isError = false) => {
+    const el = document.getElementById(id);
+    el.classList.add('visible');
+    el.style.color = isError ? '#f87171' : '#a5f3fc';
+    el.textContent = JSON.stringify(data, null, 2);
+  };
+
+  const authHeader = () => ({ 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` });
+
+  const apiFetch = async (path, opts = {}) => {
+    const res = await fetch(BASE + path, { headers: authHeader(), ...opts });
+    return res.json();
+  };
+
+  // ── Server health check ──────────────────────────
+  const checkServer = async () => {
+    try {
+      const r = await fetch(BASE + '/health');
+      const d = await r.json();
+      document.getElementById('serverStatus').textContent = d.success ? 'API Online' : 'API Error';
+    } catch {
+      document.getElementById('serverStatus').textContent = 'Cannot reach server';
+      document.querySelector('.dot').style.background = '#ef4444';
+    }
+  };
+
+  // ── Auth ──────────────────────────────────────
+  const updateAuthUI = () => {
+    if (token && userData) {
+      document.getElementById('auth-status').style.display = 'block';
+      document.getElementById('auth-name').textContent = userData.name;
+      document.getElementById('token-display').textContent = token;
+      loadDashboard();
+    } else {
+      document.getElementById('auth-status').style.display = 'none';
+    }
+  };
+
+  const register = async () => {
+    const body = {
+      name: document.getElementById('reg-name').value,
+      email: document.getElementById('reg-email').value,
+      password: document.getElementById('reg-pass').value,
+      role: document.getElementById('reg-role').value,
+    };
+    try {
+      const data = await apiFetch('/auth/register', { method: 'POST', body: JSON.stringify(body) });
+      showResponse('reg-response', data, !data.success);
+      if (data.success) { token = data.token; userData = data.user; localStorage.setItem('inv_token', token); localStorage.setItem('inv_user', JSON.stringify(userData)); updateAuthUI(); }
+    } catch (e) { showResponse('reg-response', { error: e.message }, true); }
+  };
+
+  const login = async () => {
+    const body = { email: document.getElementById('login-email').value, password: document.getElementById('login-pass').value };
+    try {
+      const data = await apiFetch('/auth/login', { method: 'POST', body: JSON.stringify(body) });
+      showResponse('login-response', data, !data.success);
+      if (data.success) { token = data.token; userData = data.user; localStorage.setItem('inv_token', token); localStorage.setItem('inv_user', JSON.stringify(userData)); updateAuthUI(); }
+    } catch (e) { showResponse('login-response', { error: e.message }, true); }
+  };
+
+  const logout = () => {
+    token = ''; userData = null;
+    localStorage.removeItem('inv_token'); localStorage.removeItem('inv_user');
+    updateAuthUI();
+    document.getElementById('login-response').classList.remove('visible');
+  };
+
+  // ── Dashboard ─────────────────────────────────
+  const loadDashboard = async () => {
+    try {
+      const data = await apiFetch('/inventory/dashboard/stats');
+      if (data.success) {
+        document.getElementById('stat-total').textContent = data.stats.totalProducts;
+        document.getElementById('stat-low').textContent = data.stats.lowStock;
+        document.getElementById('stat-out').textContent = data.stats.outOfStock;
+        document.getElementById('stat-value').textContent = '₹' + data.stats.totalStockValue.toLocaleString();
+
+        const act = data.recentActivity;
+        if (act.length) {
+          document.getElementById('activityTable').innerHTML = `
+            <table><thead><tr><th>Product</th><th>Type</th><th>Change</th><th>By</th><th>When</th></tr></thead>
+            <tbody>${act.map(a => `<tr>
+              <td>${a.product?.name || 'N/A'}</td>
+              <td><span class="badge ${a.type === 'sale' ? 'badge-red' : a.type === 'restock' ? 'badge-green' : 'badge-yellow'}">${a.type}</span></td>
+              <td style="color:${a.quantityChange >= 0 ? 'var(--green)' : 'var(--red)'}">${a.quantityChange >= 0 ? '+' : ''}${a.quantityChange}</td>
+              <td>${a.performedBy?.name || '–'}</td>
+              <td>${new Date(a.createdAt).toLocaleDateString()}</td>
+            </tr>`).join('')}</tbody></table>`;
+        }
+      }
+    } catch (e) { console.error(e); }
+  };
+
+  const loadPredictions = async () => {
+    try {
+      const data = await apiFetch('/inventory/predictions/all');
+      if (data.success) {
+        const urgencyColor = { critical: 'badge-red', high: 'badge-red', medium: 'badge-yellow', low: 'badge-green', none: 'badge-green' };
+        document.getElementById('predictionsTable').innerHTML = `
+          <table><thead><tr><th>Product</th><th>Stock</th><th>Daily Use</th><th>Days Left</th><th>Urgency</th><th>Suggest Order</th></tr></thead>
+          <tbody>${data.predictions.map(p => `<tr>
+            <td><b>${p.productName}</b><br><span class="text-muted">${p.sku}</span></td>
+            <td>${p.currentStock}</td>
+            <td>${p.dailyConsumption}/day</td>
+            <td>${p.daysUntilStockout ?? 'N/A'}</td>
+            <td><span class="badge ${urgencyColor[p.reorderUrgency]}">${p.reorderUrgency.toUpperCase()}</span></td>
+            <td>${p.suggestedOrderQty} units</td>
+          </tr>`).join('')}</tbody></table>`;
+      }
+    } catch (e) { document.getElementById('predictionsTable').innerHTML = '<p class="text-muted">Login first to load predictions.</p>'; }
+  };
+
+  // ── Endpoints table ──────────────────────────
+  const renderEndpoints = () => {
+    const authEPs = [
+      { method: 'POST', path: '/auth/register', desc: 'Register new user', auth: false },
+      { method: 'POST', path: '/auth/login', desc: 'Login & get JWT token', auth: false },
+      { method: 'GET', path: '/auth/me', desc: 'Get current user profile', auth: true },
+      { method: 'PUT', path: '/auth/me', desc: 'Update profile (+ avatar upload)', auth: true },
+      { method: 'PUT', path: '/auth/change-password', desc: 'Change password', auth: true },
+      { method: 'GET', path: '/auth/users', desc: 'Get all users (admin)', auth: true },
+    ];
+    const invEPs = [
+      { method: 'GET', path: '/inventory', desc: 'List all items (filter, search, paginate)', auth: true },
+      { method: 'POST', path: '/inventory', desc: 'Create new product (+ image upload)', auth: true },
+      { method: 'GET', path: '/inventory/:id', desc: 'Get single product', auth: true },
+      { method: 'PUT', path: '/inventory/:id', desc: 'Update product', auth: true },
+      { method: 'DELETE', path: '/inventory/:id', desc: 'Soft delete product (admin)', auth: true },
+      { method: 'PATCH', path: '/inventory/:id/stock', desc: 'Update stock (sale/restock/adjustment)', auth: true },
+      { method: 'GET', path: '/inventory/:id/history', desc: 'Get stock movement history', auth: true },
+      { method: 'GET', path: '/inventory/:id/predict', desc: '🔮 Get prediction for one product', auth: true },
+      { method: 'GET', path: '/inventory/predictions/all', desc: '🔮 Get all predictions sorted by urgency', auth: true },
+      { method: 'GET', path: '/inventory/dashboard/stats', desc: '📊 Dashboard stats + recent activity', auth: true },
+      { method: 'POST', path: '/inventory/import/csv', desc: '📁 Bulk import from CSV file', auth: true },
+      { method: 'GET', path: '/inventory/meta/categories', desc: 'List all categories', auth: true },
+    ];
+
+    const render = (eps) => eps.map(ep => `
+      <div class="endpoint">
+        <div class="endpoint-header">
+          <span class="method ${ep.method}">${ep.method}</span>
+          <span class="endpoint-path">/api${ep.path}</span>
+          <span class="endpoint-desc">${ep.desc}</span>
+          ${ep.auth ? '<span class="auth-badge">🔒 JWT</span>' : ''}
+        </div>
+      </div>`).join('');
+
+    document.getElementById('auth-endpoints').innerHTML = render(authEPs);
+    document.getElementById('inv-endpoints').innerHTML = render(invEPs);
+  };
+
+  // ── CSV ──────────────────────────────────────
+  const downloadTemplate = () => {
+    const csv = `name,sku,category,quantity,unit,costPrice,sellingPrice,reorderPoint,reorderQuantity,description\nLaptop Dell XPS,DELL-XPS-001,Electronics,50,units,800,1200,10,20,High performance laptop\nUSB-C Cable,USB-C-2M,Accessories,200,units,5,15,30,100,2 meter USB-C cable`;
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'inventory_template.csv'; a.click();
+  };
+
+  const uploadCSV = async () => {
+    const file = document.getElementById('csv-file').files[0];
+    if (!file) return alert('Please select a CSV file first');
+    if (!token) return alert('Please login first');
+
+    const formData = new FormData();
+    formData.append('file', file);
+
+    try {
+      const res = await fetch(BASE + '/inventory/import/csv', {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${token}` },
+        body: formData,
+      });
+      const data = await res.json();
+      showResponse('csv-response', data, !data.success);
+    } catch (e) { showResponse('csv-response', { error: e.message }, true); }
+  };
+
+  // ── Init ──────────────────────────────────────
+  checkServer();
+  renderEndpoints();
+  updateAuthUI();
+</script>
+</body>
+</html>

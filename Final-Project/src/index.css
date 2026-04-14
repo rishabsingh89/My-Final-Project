@@ -1,0 +1,23 @@
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap');
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --ink:#080810;--ink2:#10101c;--ink3:#181826;
+  --glass:rgba(255,255,255,0.03);--glass2:rgba(255,255,255,0.07);
+  --rim:rgba(255,255,255,0.07);--rim2:rgba(255,255,255,0.14);
+  --fog:#9ca3b8;--snow:#f0f2ff;
+  --lime:#b8ff57;--violet:#8b5cf6;--cyan:#22d3ee;
+  --rose:#f43f5e;--amber:#f59e0b;--green:#06d6a0;
+  --fd:'Plus Jakarta Sans',sans-serif;--fm:'JetBrains Mono',monospace;
+}
+html{scroll-behavior:smooth}
+body{background:var(--ink);color:var(--snow);font-family:var(--fd);overflow-x:hidden;line-height:1.6}
+::-webkit-scrollbar{width:3px}
+::-webkit-scrollbar-thumb{background:linear-gradient(180deg,var(--lime),var(--violet));border-radius:10px}
+::-webkit-scrollbar-track{background:var(--ink2)}
+
+/* Page transitions */
+main{animation:pageEnter .4s ease both}
+@keyframes pageEnter{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+
+/* Selection */
+::selection{background:rgba(184,255,87,.2);color:var(--lime)}

@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useGoogleLogin } from "@react-oauth/google";
 import { useToast } from "../components/Toast.jsx";
 import ParticleBg from "../components/ParticleBg.jsx";
 import api from "../api.js";
@@ -27,6 +28,33 @@ export default function Login({ setAuth, nav }) {
   const [loading, setLoading] = useState(false);
   const [showPwd, setShowPwd] = useState(false);
   const toast = useToast();
+
+  const handleGoogleSuccess = async (tokenResponse) => {
+    setLoading(true);
+    try {
+      const { data } = await api.post("/auth/google", {
+        idToken: tokenResponse.credential || tokenResponse.access_token,
+      });
+
+      if (data.success && data.token) {
+        localStorage.setItem("token", data.token);
+        localStorage.setItem("user", JSON.stringify(data.user));
+        toast(`Welcome, ${data.user.name}!`, "ok");
+        setAuth(true);
+        nav("dashboard");
+      }
+    } catch (err) {
+      const msg = err.response?.data?.message || "Google Login failed";
+      toast(msg, "err");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const loginWithGoogle = useGoogleLogin({
+    onSuccess: handleGoogleSuccess,
+    onError: () => toast("Google Login Failed", "err"),
+  });
 
   const set = (k) => (e) => setForm((f) => ({ ...f, [k]: e.target.value }));
 
@@ -94,11 +122,15 @@ export default function Login({ setAuth, nav }) {
           </span>
         </div>
 
-        <button style={{ 
-          width: "100%", display: "flex", alignItems: "center", justifyContent: "center", gap: "0.5rem", 
-          padding: "0.65rem", background: "#f8f9fa", border: "1px solid #dadce0", borderRadius: "6px", 
-          fontWeight: "500", color: "#3c4043", cursor: "pointer", fontSize: "0.9rem", transition: "background 0.2s" 
-        }}>
+        <button 
+          onClick={() => loginWithGoogle()}
+          disabled={loading}
+          style={{ 
+            width: "100%", display: "flex", alignItems: "center", justifyContent: "center", gap: "0.5rem", 
+            padding: "0.65rem", background: "#f8f9fa", border: "1px solid #dadce0", borderRadius: "6px", 
+            fontWeight: "500", color: "#3c4043", cursor: loading ? "wait" : "pointer", fontSize: "0.9rem", transition: "background 0.2s" 
+          }}
+        >
           <GoogleIcon /> Continue with Google
         </button>
 

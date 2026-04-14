@@ -1,6 +1,8 @@
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 const User = require('../models/User');
+const { OAuth2Client } = require('google-auth-library');
+const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
 const signToken = (userId) =>
   jwt.sign({ id: userId }, process.env.JWT_SECRET || 'dev-secret', {
@@ -188,6 +190,61 @@ const changePassword = async (req, res) => {
   }
 };
 
+const googleLogin = async (req, res) => {
+  try {
+    const { idToken } = req.body;
+
+    if (!idToken) {
+      return res.status(400).json({
+        success: false,
+        message: 'Google ID Token is required',
+      });
+    }
+
+    // Verify Google Token
+    const ticket = await client.verifyIdToken({
+      idToken,
+      audience: process.env.GOOGLE_CLIENT_ID,
+    });
+
+    const payload = ticket.getPayload();
+    const { sub, email, name, picture } = payload;
+
+    // Check if user exists
+    let user = await User.findOne({ email: email.toLowerCase() });
+
+    if (!user) {
+      // Create new user if they don't exist
+      user = await User.create({
+        name,
+        email: email.toLowerCase(),
+        password: Math.random().toString(36).slice(-12), // Random password for OAuth users
+        avatar: picture,
+        role: 'user',
+      });
+    } else {
+      // Update existing user with Google info if needed (optional)
+      user.lastLogin = new Date();
+      if (!user.avatar) user.avatar = picture;
+      await user.save();
+    }
+
+    const token = signToken(user._id);
+
+    return res.status(200).json({
+      success: true,
+      message: 'Google login successful',
+      token,
+      user: sanitizeUser(user),
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: error.message || 'Google login failed',
+    });
+  }
+};
+
 const getAllUsers = async (req, res) => {
   try {
     const users = await User.find().sort({ createdAt: -1 });
@@ -212,4 +269,5 @@ module.exports = {
   updateProfile,
   changePassword,
   getAllUsers,
+  googleLogin,
 };

@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { GoogleOAuthProvider } from "@react-oauth/google";
 import Navbar    from "./components/Navbar.jsx";
 import Footer    from "./components/Footer.jsx";
 import Cursor    from "./components/Cursor.jsx";
@@ -46,26 +47,28 @@ export default function App() {
   };
 
   return (
-    <ToastProvider>
-      <Cursor />
-      <Navbar page={page} setPage={navigate} auth={auth} setAuth={setAuth} />
-      <main style={{
-        opacity: visible ? 1 : 0,
-        transform: visible ? "translateY(0)" : "translateY(12px)",
-        transition: "opacity .2s ease, transform .2s ease"
-      }}>
-        {renderPage()}
-      </main>
-      {showLogin && (
-        <Login 
-          setAuth={setAuth} 
-          nav={(p) => {
-            setShowLogin(false);
-            if (p !== "home") navigate(p); 
-          }} 
-        />
-      )}
-      <Footer />
-    </ToastProvider>
+    <GoogleOAuthProvider clientId={import.meta.env.VITE_GOOGLE_CLIENT_ID}>
+      <ToastProvider>
+        <Cursor />
+        <Navbar page={page} setPage={navigate} auth={auth} setAuth={setAuth} />
+        <main style={{
+          opacity: visible ? 1 : 0,
+          transform: visible ? "translateY(0)" : "translateY(12px)",
+          transition: "opacity .2s ease, transform .2s ease"
+        }}>
+          {renderPage()}
+        </main>
+        {showLogin && (
+          <Login 
+            setAuth={setAuth} 
+            nav={(p) => {
+              setShowLogin(false);
+              if (p !== "home") navigate(p); 
+            }} 
+          />
+        )}
+        <Footer />
+      </ToastProvider>
+    </GoogleOAuthProvider>
   );
 }
